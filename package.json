@@ -19,7 +19,8 @@
     "pub:doc-gitee": "cd ./dist && rm -rf .git && touch .spa && touch .nojekyll && git init && git remote add origin git@gitee.com:ahooks/ahooks.git && git add -A && git commit -m \"publish docs\" && git push origin master -f && echo https://gitee.com/ahooks/ahooks/pages",
     "pub:doc": "yarn run build:doc && yarn run pub:doc-surge && yarn run pub:doc-gitee",
     "pub": "yarn run build && lerna publish",
-    "pub:beta": "yarn run build && lerna publish --dist-tag beta"
+    "pub:beta": "yarn run build && lerna publish --dist-tag beta",
+    "test:spec":"zx scripts/test-spec.js"
   },
   "husky": {
     "hooks": {

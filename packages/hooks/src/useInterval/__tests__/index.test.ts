@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
-import useInterval from '../index';
+import useInterval from '../my-index';
 
 interface ParamsObj {
   fn: (...arg: any) => any;
@@ -25,7 +25,7 @@ describe('useInterval', () => {
   });
 
   it('delay is undefined should stop', () => {
-    let delay: number | undefined = undefined;
+    const delay: number | undefined = undefined;
     const callback = jest.fn();
     const { rerender } = setUp({ fn: callback, delay });
     expect(callback).not.toBeCalled();

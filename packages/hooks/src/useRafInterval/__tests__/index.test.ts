@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
-import useRafInterval from '../index';
+import useRafInterval from '../my-index';
 
 interface ParamsObj {
   fn: (...arg: any) => any;

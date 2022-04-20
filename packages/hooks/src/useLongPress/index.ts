@@ -48,6 +48,7 @@ function useLongPress(
           clearTimeout(timerRef.current);
         }
         if (isTriggeredRef.current) {
+          // 说明up end 的时候刚刚到时间
           onLongPressEndRef.current?.(event);
         }
         if (shouldTriggerClick && !isTriggeredRef.current && onClickRef.current) {
@@ -59,10 +60,12 @@ function useLongPress(
       const onEndWithClick = (event: TouchEvent | MouseEvent) => onEnd(event, true);
 
       if (!touchSupported) {
+        // PC端
         targetElement.addEventListener('mousedown', onStart);
         targetElement.addEventListener('mouseup', onEndWithClick);
         targetElement.addEventListener('mouseleave', onEnd);
       } else {
+        // 移动端
         targetElement.addEventListener('touchstart', onStart);
         targetElement.addEventListener('touchend', onEndWithClick);
       }

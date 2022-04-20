@@ -23,10 +23,11 @@ function useMemoizedFn<T extends noop>(fn: T) {
   const memoizedFn = useRef<PickFunction<T>>();
   if (!memoizedFn.current) {
     memoizedFn.current = function (this, ...args) {
+      // 利用闭包获取得到最新的 fn
       return fnRef.current.apply(this, args);
     };
   }
-
+  // 直接返回 memoizedFn.current因为 最新的fn通过闭包获取
   return memoizedFn.current;
 }
 

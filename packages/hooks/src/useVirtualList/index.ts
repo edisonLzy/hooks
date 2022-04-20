@@ -15,17 +15,17 @@ export interface Options<T> {
 
 const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
   const { containerTarget, wrapperTarget, itemHeight, overscan = 5 } = options;
-
   const itemHeightRef = useLatest(itemHeight);
-
+  // 获取外层容器的尺寸
   const size = useSize(containerTarget);
 
   const scrollTriggerByScrollToFunc = useRef(false);
-
+  // 计算结果
   const [targetList, setTargetList] = useState<{ index: number; data: T }[]>([]);
 
   const getVisibleCount = (containerHeight: number, fromIndex: number) => {
     if (typeof itemHeightRef.current === 'number') {
+      // 向上取整
       return Math.ceil(containerHeight / itemHeightRef.current);
     }
 
@@ -36,7 +36,7 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
       sum += height;
       endIndex = i;
       if (sum >= containerHeight) {
-          break;
+        break;
       }
     }
     return endIndex - fromIndex;
@@ -85,14 +85,17 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
     const wrapper = getTargetElement(wrapperTarget);
 
     if (container && wrapper) {
+      // 获取滚动高度和容器高度
       const { scrollTop, clientHeight } = container;
-
+      // 根据滚动高度和itemHeight计算偏移量
       const offset = getOffset(scrollTop);
+      // 根据容器高度和itemHeight计算显示的数量
       const visibleCount = getVisibleCount(clientHeight, offset);
-
+      // 避免 offset - overscan小于 0
       const start = Math.max(0, offset - overscan);
+      // 避免 end的 超过 最大值为 list.length
       const end = Math.min(list.length, offset + visibleCount + overscan);
-
+      // 计算开始位置到顶部的高度
       const offsetTop = getDistanceTop(start);
 
       // @ts-ignore

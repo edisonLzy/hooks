@@ -1,0 +1,23 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 info pnpm": {
+    "err": {
+      "name": "Error",
+      "message": "not found: jest",
+      "code": "ENOENT",
+      "stack": "Error: not found: jest\n    at getNotFoundError (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:21148:51)\n    at Function.whichSync [as sync] (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:21225:13)\n    at getCommandAbsolutePathSync (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:22903:44)\n    at default_1 (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:22912:32)\n    at /Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:184699:39"
+    }
+  },
+  "2 error pnpm": {
+    "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
+    "prefix": "/Users/zhiyu/Desktop/react开源项目阅读/hooks/packages/hooks",
+    "err": {
+      "name": "pnpm",
+      "message": "not found: jest",
+      "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
+      "stack": "Error: not found: jest\n    at getNotFoundError (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:21148:51)\n    at Function.whichSync [as sync] (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:21225:13)\n    at getCommandAbsolutePathSync (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:22903:44)\n    at default_1 (/Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:22912:32)\n    at /Users/zhiyu/Library/pnpm/global/5/.pnpm/pnpm@7.4.0/node_modules/pnpm/dist/pnpm.cjs:184699:39"
+    }
+  }
+}

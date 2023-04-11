@@ -3,7 +3,8 @@ import type { FetchState, Options, PluginReturn, Service, Subscribe } from './ty
 
 export default class Fetch<TData, TParams extends any[]> {
   pluginImpls: PluginReturn<TData, TParams>[];
-
+  // 取消请求时会改变count的值, 从而导致发送请求前和收到响应之后 count值不一致
+  // 从而执行取消请求的逻辑
   count: number = 0;
 
   state: FetchState<TData, TParams> = {
@@ -36,6 +37,8 @@ export default class Fetch<TData, TParams extends any[]> {
 
   runPluginHandler(event: keyof PluginReturn<TData, TParams>, ...rest: any[]) {
     // @ts-ignore
+    // 执行 所有plugin 对应的 (这里的event) 钩子函数
+    // 比如 onBefore 等
     const r = this.pluginImpls.map((i) => i[event]?.(...rest)).filter(Boolean);
     return Object.assign({}, ...r);
   }

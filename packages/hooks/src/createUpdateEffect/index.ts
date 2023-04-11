@@ -10,6 +10,7 @@ export const createUpdateEffect: (hook: effectHookType) => effectHookType =
     // for react-refresh
     hook(() => {
       return () => {
+        // 避免 react-refresh 的怪异行为
         isMounted.current = false;
       };
     }, []);

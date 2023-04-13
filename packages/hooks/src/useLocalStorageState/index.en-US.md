@@ -35,16 +35,17 @@ interface Options<T> {
 const [state, setState] = useLocalStorageState<T>(
   key: string,
   options: Options<T>
-): [T?, (value?: T | ((previousState: T) => T)) => void]
+): [T?, (value?: T | ((previousState: T) => T)) => void];
 ```
 
 ### Options
 
-| Property     | Description                   | Type                     | Default          |
-|--------------|-------------------------------|--------------------------|------------------|
-| defaultValue | Default value                 | `any \| (() => any)`     | -                |
-| serializer   | Custom serialization method   | `(value: any) => string` | `JSON.stringify` |
-| deserializer | Custom deserialization method | `(value: string) => any` | `JSON.parse`     |
+| Property     | Description                   | Type                       | Default                       |
+| ------------ | ----------------------------- | -------------------------- | ----------------------------- |
+| defaultValue | Default value                 | `any \| (() => any)`       | -                             |
+| serializer   | Custom serialization method   | `(value: any) => string`   | `JSON.stringify`              |
+| deserializer | Custom deserialization method | `(value: string) => any`   | `JSON.parse`                  |
+| onError      | On error callback             | `(error: unknown) => void` | `(e) => { console.error(e) }` |
 
 ## Remark
 

@@ -1,15 +1,20 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
+import type { CSSProperties } from 'react';
 import useEventListener from '../useEventListener';
 import useLatest from '../useLatest';
 import useMemoizedFn from '../useMemoizedFn';
 import useSize from '../useSize';
 import { getTargetElement } from '../utils/domTarget';
 import type { BasicTarget } from '../utils/domTarget';
+import { isNumber } from '../utils';
+import useUpdateEffect from '../useUpdateEffect';
+
+type ItemHeight<T> = (index: number, data: T) => number;
 
 export interface Options<T> {
   containerTarget: BasicTarget;
   wrapperTarget: BasicTarget;
-  itemHeight: number | ((index: number, data: T) => number);
+  itemHeight: number | ItemHeight<T>;
   overscan?: number;
 }
 
@@ -23,9 +28,10 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
   // 计算结果
   const [targetList, setTargetList] = useState<{ index: number; data: T }[]>([]);
 
+  const [wrapperStyle, setWrapperStyle] = useState<CSSProperties>({});
+
   const getVisibleCount = (containerHeight: number, fromIndex: number) => {
-    if (typeof itemHeightRef.current === 'number') {
-      // 向上取整
+    if (isNumber(itemHeightRef.current)) {
       return Math.ceil(containerHeight / itemHeightRef.current);
     }
 
@@ -43,7 +49,7 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
   };
 
   const getOffset = (scrollTop: number) => {
-    if (typeof itemHeightRef.current === 'number') {
+    if (isNumber(itemHeightRef.current)) {
       return Math.floor(scrollTop / itemHeightRef.current) + 1;
     }
     let sum = 0;
@@ -61,31 +67,30 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
 
   // 获取上部高度
   const getDistanceTop = (index: number) => {
-    if (typeof itemHeightRef.current === 'number') {
+    if (isNumber(itemHeightRef.current)) {
       const height = index * itemHeightRef.current;
       return height;
     }
     const height = list
       .slice(0, index)
-      // @ts-ignore
-      .reduce((sum, _, i) => sum + itemHeightRef.current(i, list[index]), 0);
+      .reduce((sum, _, i) => sum + (itemHeightRef.current as ItemHeight<T>)(i, list[i]), 0);
     return height;
   };
 
   const totalHeight = useMemo(() => {
-    if (typeof itemHeightRef.current === 'number') {
+    if (isNumber(itemHeightRef.current)) {
       return list.length * itemHeightRef.current;
     }
-    // @ts-ignore
-    return list.reduce((sum, _, index) => sum + itemHeightRef.current(index, list[index]), 0);
+    return list.reduce(
+      (sum, _, index) => sum + (itemHeightRef.current as ItemHeight<T>)(index, list[index]),
+      0,
+    );
   }, [list]);
 
   const calculateRange = () => {
     const container = getTargetElement(containerTarget);
-    const wrapper = getTargetElement(wrapperTarget);
 
-    if (container && wrapper) {
-      // 获取滚动高度和容器高度
+    if (container) {
       const { scrollTop, clientHeight } = container;
       // 根据滚动高度和itemHeight计算偏移量
       const offset = getOffset(scrollTop);
@@ -98,10 +103,10 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
       // 计算开始位置到顶部的高度
       const offsetTop = getDistanceTop(start);
 
-      // @ts-ignore
-      wrapper.style.height = totalHeight - offsetTop + 'px';
-      // @ts-ignore
-      wrapper.style.marginTop = offsetTop + 'px';
+      setWrapperStyle({
+        height: totalHeight - offsetTop + 'px',
+        marginTop: offsetTop + 'px',
+      });
 
       setTargetList(
         list.slice(start, end).map((ele, index) => ({
@@ -111,6 +116,13 @@ const useVirtualList = <T = any>(list: T[], options: Options<T>) => {
       );
     }
   };
+
+  useUpdateEffect(() => {
+    const wrapper = getTargetElement(wrapperTarget) as HTMLElement;
+    if (wrapper) {
+      Object.keys(wrapperStyle).forEach((key) => (wrapper.style[key] = wrapperStyle[key]));
+    }
+  }, [wrapperStyle]);
 
   useEffect(() => {
     if (!size?.width || !size?.height) {

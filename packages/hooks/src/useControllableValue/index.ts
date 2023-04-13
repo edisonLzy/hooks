@@ -1,4 +1,6 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, InputHTMLAttributes } from 'react';
+import type { SetStateAction } from 'react';
+import { isFunction } from '../utils';
 import useMemoizedFn from '../useMemoizedFn';
 import useUpdate from '../useUpdate';
 
@@ -17,11 +19,13 @@ export interface StandardProps<T> {
   onChange: (val: T) => void;
 }
 
-function useControllableValue<T = any>(props: StandardProps<T>): [T, (val: T) => void];
+function useControllableValue<T = any>(
+  props: StandardProps<T>,
+): [T, (v: SetStateAction<T>) => void];
 function useControllableValue<T = any>(
   props?: Props,
   options?: Options<T>,
-): [T, (v: T, ...args: any[]) => void];
+): [T, (v: SetStateAction<T>, ...args: any[]) => void];
 function useControllableValue<T = any>(props: Props = {}, options: Options<T> = {}) {
   const {
     defaultValue,
@@ -31,13 +35,13 @@ function useControllableValue<T = any>(props: Props = {}, options: Options<T> = 
   } = options;
 
   const value = props[valuePropName] as T;
-  const isControlled = valuePropName in props;
+  const isControlled = props.hasOwnProperty(valuePropName);
 
   const initialValue = useMemo(() => {
     if (isControlled) {
       return value;
     }
-    if (defaultValuePropName in props) {
+    if (props.hasOwnProperty(defaultValuePropName)) {
       return props[defaultValuePropName];
     }
     return defaultValue;
@@ -45,20 +49,27 @@ function useControllableValue<T = any>(props: Props = {}, options: Options<T> = 
 
   const stateRef = useRef(initialValue);
   if (isControlled) {
+    // 保证 外部传入的 value 一直是最新的
     stateRef.current = value;
   }
-
+  // forceUpdate
   const update = useUpdate();
 
-  const setState = (v: T, ...args: any[]) => {
+  function setState(v: SetStateAction<T>, ...args: any[]) {
+    const r = isFunction(v) ? v(stateRef.current) : v;
+
     if (!isControlled) {
-      stateRef.current = v;
+      // 非受控强制刷新组件
+      // 受控: 组件内部自己维护状态
+      // 非受控: 组件的状态由外部传入
+      stateRef.current = r;
       update();
     }
     if (props[trigger]) {
-      props[trigger](v, ...args);
+      // 触发 onChange
+      props[trigger](r, ...args);
     }
-  };
+  }
 
   return [stateRef.current, useMemoizedFn(setState)] as const;
 }

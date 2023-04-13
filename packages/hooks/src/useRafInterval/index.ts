@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import useLatest from '../useLatest';
+import { isNumber } from '../utils';
 
 interface Handle {
   id: number | NodeJS.Timer;
@@ -52,19 +53,30 @@ function useRafInterval(
   const immediate = options?.immediate;
 
   const fnRef = useLatest(fn);
+  const timerRef = useRef<Handle>();
 
   useEffect(() => {
-    if (typeof delay !== 'number' || delay < 0) return;
+    if (!isNumber(delay) || delay < 0) return;
     if (immediate) {
       fnRef.current();
     }
-    const timer = setRafInterval(() => {
+    timerRef.current = setRafInterval(() => {
       fnRef.current();
     }, delay);
     return () => {
-      clearRafInterval(timer as any);
+      if (timerRef.current) {
+        clearRafInterval(timerRef.current);
+      }
     };
   }, [delay]);
+
+  const clear = useCallback(() => {
+    if (timerRef.current) {
+      clearRafInterval(timerRef.current);
+    }
+  }, []);
+
+  return clear;
 }
 
 export default useRafInterval;

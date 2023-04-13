@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import useMemoizedFn from '../useMemoizedFn';
 import useUpdateEffect from '../useUpdateEffect';
-import { isFunction } from '../utils';
+import { isFunction, isUndef } from '../utils';
 
 export interface IFuncUpdater<T> {
   (previousState?: T): T;
@@ -14,30 +14,24 @@ export interface IFuncStorage {
 export interface Options<T> {
   serializer?: (value: T) => string;
   deserializer?: (value: string) => T;
+  defaultValue?: T | IFuncUpdater<T>;
+  onError?: (error: unknown) => void;
 }
-
-export interface OptionsWithDefaultValue<T> extends Options<T> {
-  defaultValue: T | IFuncUpdater<T>;
-}
-
-export type StorageStateResult<T> = [T | undefined, (value?: T | IFuncUpdater<T>) => void];
-export type StorageStateResultHasDefaultValue<T> = [T, (value?: T | IFuncUpdater<T>) => void];
 
 export function createUseStorageState(getStorage: () => Storage | undefined) {
-  function useStorageState<T = any>(key: string, options?: Options<T>): StorageStateResult<T>;
-  function useStorageState<T>(
-    key: string,
-    options: OptionsWithDefaultValue<T>,
-  ): StorageStateResultHasDefaultValue<T>;
-
-  function useStorageState<T>(key: string, options?: Options<T> & OptionsWithDefaultValue<T>) {
+  function useStorageState<T>(key: string, options: Options<T> = {}) {
     let storage: Storage | undefined;
+    const {
+      onError = (e) => {
+        console.error(e);
+      },
+    } = options;
 
     // https://github.com/alibaba/hooks/issues/800
     try {
       storage = getStorage();
     } catch (err) {
-      console.error(err);
+      onError(err);
     }
 
     const serializer = (value: T) => {
@@ -61,7 +55,7 @@ export function createUseStorageState(getStorage: () => Storage | undefined) {
           return deserializer(raw);
         }
       } catch (e) {
-        console.error(e);
+        onError(e);
       }
       if (isFunction(options?.defaultValue)) {
         return options?.defaultValue();
@@ -69,35 +63,28 @@ export function createUseStorageState(getStorage: () => Storage | undefined) {
       return options?.defaultValue;
     }
 
-    const [state, setState] = useState<T | undefined>(() => getStoredValue());
+    const [state, setState] = useState<T>(() => getStoredValue());
 
     useUpdateEffect(() => {
       setState(getStoredValue());
     }, [key]);
 
-    const updateState = (value?: T | IFuncUpdater<T>) => {
-      if (typeof value === 'undefined') {
-        setState(undefined);
+    const updateState = (value: T | IFuncUpdater<T>) => {
+      const currentState = isFunction(value) ? value(state) : value;
+      setState(currentState);
+
+      if (isUndef(currentState)) {
         storage?.removeItem(key);
-      } else if (isFunction(value)) {
-        const currentState = value(state);
-        try {
-          setState(currentState);
-          storage?.setItem(key, serializer(currentState));
-        } catch (e) {
-          console.error(e);
-        }
       } else {
         try {
-          setState(value);
-          storage?.setItem(key, serializer(value));
+          storage?.setItem(key, serializer(currentState));
         } catch (e) {
           console.error(e);
         }
       }
     };
 
-    return [state, useMemoizedFn(updateState)];
+    return [state, useMemoizedFn(updateState)] as const;
   }
   return useStorageState;
 }

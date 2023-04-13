@@ -55,6 +55,7 @@ export const menus = [
       'useRafState',
       'useSafeState',
       'useGetState',
+      'useResetState',
     ],
   },
   {
@@ -68,6 +69,7 @@ export const menus = [
       'useThrottleFn',
       'useThrottleEffect',
       'useDeepCompareEffect',
+      'useDeepCompareLayoutEffect',
       'useInterval',
       'useRafInterval',
       'useTimeout',
@@ -89,6 +91,7 @@ export const menus = [
       'useFavicon',
       'useFullscreen',
       'useHover',
+      'useMutationObserver',
       'useInViewport',
       'useKeyPress',
       'useLongPress',

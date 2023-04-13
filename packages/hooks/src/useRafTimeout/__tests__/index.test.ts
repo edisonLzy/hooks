@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import useRafTimeout from '../index';
 
 interface ParamsObj {
@@ -11,13 +11,10 @@ const setUp = ({ fn, delay }: ParamsObj) => renderHook(() => useRafTimeout(fn, d
 const FRAME_TIME = 16.7;
 describe('useRafTimeout', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers({ legacyFakeTimers: false });
   });
   afterAll(() => {
     jest.restoreAllMocks();
-  });
-  it('should be defined', () => {
-    expect(useRafTimeout).toBeDefined();
   });
 
   it('timeout should work', () => {
@@ -35,5 +32,16 @@ describe('useRafTimeout', () => {
     expect(callback).not.toBeCalled();
     jest.advanceTimersByTime(FRAME_TIME * 1.5);
     expect(callback).not.toBeCalled();
+  });
+
+  it('timeout should be clear', () => {
+    const callback = jest.fn();
+
+    const hook = setUp({ fn: callback, delay: FRAME_TIME });
+    expect(callback).not.toBeCalled();
+
+    hook.result.current();
+    jest.advanceTimersByTime(FRAME_TIME * 2.5);
+    expect(callback).toHaveBeenCalledTimes(0);
   });
 });

@@ -1,5 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
-import useRafInterval from '../my-index';
+import { renderHook } from '@testing-library/react';
+import useRafInterval from '../index';
 
 interface ParamsObj {
   fn: (...arg: any) => any;
@@ -13,13 +13,10 @@ const setUp = ({ fn, delay, options }: ParamsObj) =>
 const FRAME_TIME = 16;
 describe('useRafInterval', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers({ legacyFakeTimers: false });
   });
   afterAll(() => {
     jest.restoreAllMocks();
-  });
-  it('should be defined', () => {
-    expect(useRafInterval).toBeDefined();
   });
 
   it('interval should work', () => {
@@ -46,5 +43,17 @@ describe('useRafInterval', () => {
     expect(callback).toHaveBeenCalledTimes(1);
     jest.advanceTimersByTime(FRAME_TIME * 1.5);
     expect(callback).toHaveBeenCalledTimes(2);
+  });
+
+  it('interval should be clear', () => {
+    const callback = jest.fn();
+    const hook = setUp({ fn: callback, delay: FRAME_TIME });
+
+    expect(callback).not.toBeCalled();
+
+    hook.result.current();
+    jest.advanceTimersByTime(FRAME_TIME * 2.5);
+    // not to be called
+    expect(callback).toHaveBeenCalledTimes(0);
   });
 });

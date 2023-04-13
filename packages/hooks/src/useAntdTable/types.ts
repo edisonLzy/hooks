@@ -8,6 +8,7 @@ export type Params = [
     pageSize: number;
     sorter?: any;
     filter?: any;
+    extra?: any;
     [key: string]: any;
   },
   ...any[]
@@ -36,7 +37,7 @@ export interface AntdFormUtils {
 export interface AntdTableResult<TData extends Data, TParams extends Params>
   extends PaginationResult<TData, TParams> {
   tableProps: {
-    dataSource: any[];
+    dataSource: TData['list'];
     loading: boolean;
     onChange: (pagination: any, filters?: any, sorter?: any) => void;
     pagination: any;

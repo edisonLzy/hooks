@@ -16,7 +16,7 @@ useInfiniteScroll 的第一个参数 `service` 是一个异步函数，对这个
 1. `service` 返回的数据必须包含 `list` 数组，类型为 `{ list: any[], ...rest }`
 2. `service` 的入参为整合后的最新 `data`
 
-假如第一次请求返回数据为 `{ list: [1, 2, 3], nextId: 4 }`, 第二次返回的数据为 `{ list: [4, 5, 6], nextId: 7 }`, 则我们会自动合并 `list`，整合后的的 `data` 为 `{ list: [1, 2, 3, 4, 5, 6], nextId: 7 }`。
+假如第一次请求返回数据为 `{ list: [1, 2, 3], nextId: 4 }`, 第二次返回的数据为 `{ list: [4, 5, 6], nextId: 7 }`, 则我们会自动合并 `list`，整合后的 `data` 为 `{ list: [1, 2, 3, 4, 5, 6], nextId: 7 }`。
 
 ## 基础用法
 
@@ -95,11 +95,12 @@ const {
 ### Result
 
 | 参数          | 说明                                                                       | 类型                     |
-| ------------- | -------------------------------------------------------------------------- | ------------------------ |
-| data          | service 返回的数据，其中的 `list` 属性为聚合后数据                         | `TData` \| `undefined`   |
+| ------------- | -------------------------------------------------------------------------- | ------------------------ | ----------- |
+| data          | service 返回的数据，其中的 `list` 属性为聚合后数据                         | `TData` \                | `undefined` |
 | loading       | 是否正在进行首次请求                                                       | `boolean`                |
 | loadingMore   | 是否正在进行更多数据请求                                                   | `boolean`                |
 | noMore        | 是否没有更多数据了，配置 `options.isNoMore` 后生效                         | `boolean`                |
+| error         | 请求错误消息                                                               | `Error`                  |
 | loadMore      | 加载更多数据，会自动捕获异常，通过 `options.onError` 处理                  | `() => void`             |
 | loadMoreAsync | 加载更多数据，与 `loadMore` 行为一致，但返回的是 Promise，需要自行处理异常 | `() => Promise<TData>`   |
 | reload        | 加载第一页数据，会自动捕获异常，通过 `options.onError` 处理                | `() => void`             |
